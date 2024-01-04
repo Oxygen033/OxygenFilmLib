@@ -1,25 +1,25 @@
 import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
-export class User
+export class Film
 {
     @PrimaryGeneratedColumn()
     id: number;
 
     @Column()
-    title: string;
+    title?: string;
 
-    @Column()
-    description: string;
+    @Column({nullable: true})
+    description?: string;
 
-    @Column()
-    releaseDate: Date;
+    @Column({nullable: true})
+    releaseDate?: Date;
 
-    @Column()
-    poster: string;
+    @Column({nullable: true})
+    poster?: string;
 
-    @Column()
-    screenshots: string[];
+    @Column("varchar", {array: true, nullable: true})
+    screenshots?: string[];
 
     @Column()
     addDate: Date;
