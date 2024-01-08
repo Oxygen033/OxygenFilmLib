@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { FilmsModule } from './films/films.module';
@@ -6,11 +7,12 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import { Film } from './films/entites/film.entity';
 import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'media'),
       serveRoot: '/media',
@@ -24,10 +26,12 @@ import { UsersModule } from './users/users.module';
       database: 'FilmLibDatabase',
       entities: [],
       autoLoadEntities: true,
-      synchronize: true
+      synchronize: true,
     }),
     FilmsModule,
-    UsersModule],
+    UsersModule,
+    AuthModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
