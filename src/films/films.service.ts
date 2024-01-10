@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Req } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UpdateFilmDTO } from './dto/update-film.dto';
 import { CreateFilmDTO } from './dto/create-film.dto';
 import { Film } from './entites/film.entity';
+import { Request } from 'express';
 
 //Placeholder
 @Injectable()
@@ -13,13 +14,13 @@ export class FilmsService {
     private filmsRepository: Repository<Film>
   ) {}
 
-  async create(createFilmDTO: CreateFilmDTO) {
+  async create(createFilmDTO: CreateFilmDTO, @Req() req: Request) {
     const film = new Film();
     film.title = createFilmDTO.title;
     film.description = createFilmDTO.description;
     film.releaseDate = createFilmDTO.releaseDate;
     film.addDate = new Date(Date.now());
-    film.addedBy = 0; //Until users not implemented
+    film.addedBy = req.id ? req.id : 0;
     film.poster = createFilmDTO.poster;
     film.screenshots = createFilmDTO.screenshots;
     await this.filmsRepository.save(film);
