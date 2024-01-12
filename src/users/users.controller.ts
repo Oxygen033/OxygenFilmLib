@@ -11,14 +11,15 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard } from '../auth/auth.guard';
 import { Request } from 'express';
+import { Reflector } from '@nestjs/core';
+import { Role } from '../auth/roles/role.enum';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService, private reflector: Reflector) {}
 
   @Get()
   findAll() {
@@ -52,7 +53,7 @@ export class UsersController {
   @UseGuards(AuthGuard)
   @Delete(':username')
   remove(@Param('username') username: string, @Req() req: Request) {
-    if ((req.username ?? '') === username) {
+    if (((req.username ?? '') === username) || req.roles.includes(Role.Admin)) {
       return this.usersService.remove(username);
     } else {
       throw new UnauthorizedException();

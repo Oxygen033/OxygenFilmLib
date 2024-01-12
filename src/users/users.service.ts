@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { Role } from '../auth/roles/role.enum';
 
 @Injectable()
 export class UsersService {
@@ -18,8 +19,8 @@ export class UsersService {
     user.username = createUserDto.username;
     const hash = await bcrypt.hash(createUserDto.password, 10);
     user.password = hash;
-    await this.usersRepository.save(user);
-    return await this.usersRepository.findOneBy({ username: createUserDto.username });
+    //user.roles = [Role.User];
+    return await this.usersRepository.save(user);
   }
 
   async findAll() {
