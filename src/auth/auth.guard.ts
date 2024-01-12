@@ -23,6 +23,7 @@ export class AuthGuard implements CanActivate {
       });
       request['username'] = payload['username'];
       request['id'] = payload['sub'];
+      request['roles'] = payload['roles'];
     } catch (err) {
       console.log(err.message);
       throw new UnauthorizedException();
