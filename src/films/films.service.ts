@@ -20,11 +20,10 @@ export class FilmsService {
     film.description = createFilmDTO.description;
     film.releaseDate = createFilmDTO.releaseDate;
     film.addDate = new Date(Date.now());
-    film.addedBy = req.id ? req.id : 0;
+    film.addedBy = req.id ?? 0;
     film.poster = createFilmDTO.poster;
     film.screenshots = createFilmDTO.screenshots;
-    await this.filmsRepository.save(film);
-    return 'Created';
+    return await this.filmsRepository.save(film);
   }
 
   async findAll() {
