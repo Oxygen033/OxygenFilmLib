@@ -7,25 +7,18 @@ import {
   Param,
   Delete,
   UseGuards,
+  Req,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard } from '../auth/auth.guard';
+import { Request } from 'express';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
-
-  /*@Post('/register')
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
-  }
-
-  @Post('/login')
-  login(@Body() loginDto: CreateUserDto) {
-    return this.authServise.login(loginDto.username, loginDto.password);
-  }*/
 
   @Get()
   findAll() {
@@ -34,8 +27,12 @@ export class UsersController {
 
   @UseGuards(AuthGuard)
   @Get(':username')
-  findOne(@Param('username') username: string) {
-    return this.usersService.findOne(username);
+  findOne(@Param('username') username: string, @Req() req: Request) {
+    if ((req.username ?? '') === username) {
+      return this.usersService.findOne(username);
+    } else {
+      throw new UnauthorizedException();
+    }
   }
 
   @UseGuards(AuthGuard)
@@ -43,13 +40,22 @@ export class UsersController {
   update(
     @Param('username') username: string,
     @Body() updateUserDto: UpdateUserDto,
+    @Req() req: Request,
   ) {
-    return this.usersService.update(username, updateUserDto);
+    if ((req.username ?? '') === username) {
+      return this.usersService.update(username, updateUserDto);
+    } else {
+      throw new UnauthorizedException();
+    }
   }
 
   @UseGuards(AuthGuard)
   @Delete(':username')
-  remove(@Param('username') username: string) {
-    return this.usersService.remove(username);
+  remove(@Param('username') username: string, @Req() req: Request) {
+    if ((req.username ?? '') === username) {
+      return this.usersService.remove(username);
+    } else {
+      throw new UnauthorizedException();
+    }
   }
 }

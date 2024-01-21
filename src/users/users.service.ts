@@ -19,7 +19,7 @@ export class UsersService {
     const hash = await bcrypt.hash(createUserDto.password, 10);
     user.password = hash;
     await this.usersRepository.save(user);
-    return 'Created';
+    return await this.usersRepository.findOneBy({ username: createUserDto.username });
   }
 
   async findAll() {
@@ -38,7 +38,7 @@ export class UsersService {
       user.password = hash;
     }
     await this.usersRepository.update({ username: Username }, user);
-    return await this.usersRepository.findOneBy({ username: Username });
+    return await this.usersRepository.findOneBy({ username: updateUserDto.username });
   }
 
   async remove(Username: string) {
