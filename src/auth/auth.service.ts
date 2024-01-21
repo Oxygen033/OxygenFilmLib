@@ -23,7 +23,7 @@ export class AuthService {
       if (!(await bcrypt.compare(loginDto.password, user?.password))) {
         throw new UnauthorizedException();
       }
-      const payload = { sub: user.id, username: user.username };
+      const payload = { sub: user.id, username: user.username, roles: user.roles };
       return await this.jwtService.signAsync(payload);
     } else {
       throw new HttpException('User not found', HttpStatus.FORBIDDEN); //Extremely ugly, will be fixed for sure
