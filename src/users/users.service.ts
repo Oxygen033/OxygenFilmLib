@@ -4,18 +4,20 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
-    private usersRepository: Repository<User>
+    private usersRepository: Repository<User>,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
     const user = new User();
     user.username = createUserDto.username;
-    user.password = createUserDto.password;
+    const hash = await bcrypt.hash(createUserDto.password, 10);
+    user.password = hash;
     await this.usersRepository.save(user);
     return 'Created';
   }
@@ -24,20 +26,23 @@ export class UsersService {
     return await this.usersRepository.find();
   }
 
-  async findOne(Id: number) {
-    return await this.usersRepository.findOneBy({id: Id});
+  async findOne(Username: string) {
+    return await this.usersRepository.findOneBy({ username: Username });
   }
 
-  async update(Id: number, updateUserDto: UpdateUserDto) {
+  async update(Username: string, updateUserDto: UpdateUserDto) {
     const user = new User();
     user.username = updateUserDto.username;
-    user.password = updateUserDto.password;
-    await this.usersRepository.update({id: Id}, user);
-    return await this.usersRepository.findOneBy({id: Id});
+    if (updateUserDto.password) {
+      const hash = await bcrypt.hash(updateUserDto.password, 10);
+      user.password = hash;
+    }
+    await this.usersRepository.update({ username: Username }, user);
+    return await this.usersRepository.findOneBy({ username: Username });
   }
 
-  async remove(Id: number) {
-    this.usersRepository.delete({id: Id});
+  async remove(Username: string) {
+    this.usersRepository.delete({ username: Username });
     return 'Deleted';
   }
 }
