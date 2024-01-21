@@ -2,11 +2,12 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { FilmsModule } from './films/films.module';
-import { FilmsController } from './films/films.controller';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { FilmsService } from './films/films.service';
+import { DataSource } from 'typeorm';
+import { Film } from './films/entites/film.entity';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -22,10 +23,14 @@ import { FilmsService } from './films/films.service';
       password: '12345678',
       database: 'FilmLibDatabase',
       entities: [],
+      autoLoadEntities: true,
       synchronize: true
     }),
-    FilmsModule],
-  controllers: [AppController, FilmsController],
-  providers: [AppService, FilmsService],
+    FilmsModule,
+    UsersModule],
+  controllers: [AppController],
+  providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {
+  constructor(private dataSource: DataSource) {}
+}

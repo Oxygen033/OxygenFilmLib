@@ -1,5 +1,5 @@
 import { PartialType } from "@nestjs/mapped-types";
-import { IsDate, IsISO8601, IsNotEmpty, IsOptional, IsString, isDateString, isISO8601, isNotEmpty } from "class-validator";
+import { IsDate, IsISO8601, IsNotEmpty, IsOptional, IsString, isDateString, isNotEmpty } from "class-validator";
 
 export class CreateFilmDTO
 {
