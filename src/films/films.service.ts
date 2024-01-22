@@ -19,10 +19,21 @@ export class FilmsService {
     film.title = createFilmDTO.title;
     film.description = createFilmDTO.description;
     film.releaseDate = createFilmDTO.releaseDate;
-    film.addDate = new Date(Date.now());
-    film.addedBy = req.id ?? 0;
+    film.country = createFilmDTO.country;
+    film.director = createFilmDTO.director;
+    film.assistDirector = createFilmDTO.assistDirector;
+    film.cast = createFilmDTO.cast;
+    film.producers = createFilmDTO.producers;
+    film.execProducers = createFilmDTO.execProducers;
+    film.writers = createFilmDTO.writers;
+    film.artDirection = createFilmDTO.artDirection;
+    film.composers = createFilmDTO.composers;
+    film.songs = createFilmDTO.songs;
+    film.sound = createFilmDTO.sound;
     film.poster = createFilmDTO.poster;
     film.screenshots = createFilmDTO.screenshots;
+    film.addDate = new Date(Date.now());
+    film.addedBy = req.id ?? -1;
     return await this.filmsRepository.save(film);
   }
 

@@ -16,6 +16,7 @@ import { AuthGuard } from '../auth/auth.guard';
 import { Request } from 'express';
 import { Reflector } from '@nestjs/core';
 import { Role } from '../auth/roles/role.enum';
+import { validate } from 'class-validator';
 
 @Controller('users')
 export class UsersController {
@@ -43,7 +44,16 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
     @Req() req: Request,
   ) {
-    if ((req.username ?? '') === username) {
+    if ((req.username ?? '') === username || req.roles.includes(Role.Admin)) {
+      if(!req.roles.includes(Role.Admin))
+      {
+        updateUserDto.roles = undefined; //Forgive me
+      }
+      else
+      {
+        updateUserDto.username = undefined;
+        updateUserDto.password = undefined;
+      }
       return this.usersService.update(username, updateUserDto);
     } else {
       throw new UnauthorizedException();

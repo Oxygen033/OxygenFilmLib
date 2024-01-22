@@ -22,7 +22,7 @@ export class CreateFilmDTO
     @IsString()
     director: string;
 
-    @IsNotEmpty()
+    @IsOptional()
     @IsString()
     assistDirector: string[];
 

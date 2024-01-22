@@ -21,8 +21,8 @@ export class Film
     @Column()
     director: string;
 
-    @Column()
-    assistDirector: string;
+    @Column("varchar", {array: true, nullable: true})
+    assistDirector?: string[];
 
     @Column("varchar", {array: true, nullable: true})
     cast?: string[];
