@@ -1,4 +1,3 @@
-import { PartialType } from "@nestjs/mapped-types";
 import { IsDate, IsISO31661Alpha2, IsISO8601, IsNotEmpty, IsOptional, IsString, isDateString, isNotEmpty } from "class-validator";
 
 export class CreateFilmDTO
@@ -57,6 +56,10 @@ export class CreateFilmDTO
     @IsOptional()
     @IsString()
     sound: string[];
+
+    @IsOptional()
+    @IsString()
+    genres: string[];
 
     @IsOptional()
     @IsString()

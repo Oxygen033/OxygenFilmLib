@@ -74,4 +74,18 @@ export class FilmsController {
     });
     return this.filmsService.remove(Id);
   }
+
+  @UseGuards(AuthGuard)
+  @Post('like/:id')
+  async like(@Param('id') Id: number, @Req() req: Request) {
+    await this.filmsService.like(Id, req.id);
+    return `User ${req.username} liked film with id ${Id}`;
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('unlike/:id')
+  async unlike(@Param('id') Id: number, @Req() req: Request) {
+    await this.filmsService.unlike(Id, req.id);
+    return `User ${req.username} unliked film with id ${Id}`;
+  }
 }

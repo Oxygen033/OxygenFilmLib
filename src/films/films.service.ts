@@ -1,17 +1,20 @@
-import { Injectable, Req } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { HttpException, HttpStatus, Injectable, Req } from '@nestjs/common';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UpdateFilmDTO } from './dto/update-film.dto';
 import { CreateFilmDTO } from './dto/create-film.dto';
 import { Film } from './entites/film.entity';
 import { Request } from 'express';
+import { DataSource } from 'typeorm';
+import { User } from '../users/entities/user.entity';
 
 //Placeholder
 @Injectable()
 export class FilmsService {
   constructor(
     @InjectRepository(Film)
-    private filmsRepository: Repository<Film>
+    private filmsRepository: Repository<Film>,
+    private dataSource: DataSource
   ) {}
 
   async create(createFilmDTO: CreateFilmDTO, @Req() req: Request) {
@@ -30,6 +33,7 @@ export class FilmsService {
     film.composers = createFilmDTO.composers;
     film.songs = createFilmDTO.songs;
     film.sound = createFilmDTO.sound;
+    film.genres = createFilmDTO.genres;
     film.poster = createFilmDTO.poster;
     film.screenshots = createFilmDTO.screenshots;
     film.addDate = new Date(Date.now());
@@ -59,5 +63,14 @@ export class FilmsService {
   async remove(Id: number) {
     await this.filmsRepository.delete({id: Id});
     return 'Deleted';
+  }
+
+  //Stub
+  async like(filmId: number, userId: number) {
+    return await this.dataSource.createQueryBuilder().relation(User, "likedFilms").of(userId).add(filmId);
+  }
+  //Stub
+  async unlike(filmId: number, userId: number) {
+    return await this.dataSource.createQueryBuilder().relation(User, "likedFilms").of(userId).remove(filmId);
   }
 }

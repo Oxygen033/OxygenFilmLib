@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
+import { User } from "../../users/entities/user.entity";
+import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, JoinTable } from "typeorm";
 
 @Entity()
 export class Film
@@ -47,6 +48,9 @@ export class Film
 
     @Column("varchar", {array: true, nullable: true})
     sound?: string[];
+
+    @Column("varchar", {array: true, nullable: true})
+    genres?: string[];
 
     @Column({nullable: true})
     poster?: string;

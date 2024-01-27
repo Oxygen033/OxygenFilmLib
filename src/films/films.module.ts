@@ -4,9 +4,10 @@ import { FilmsService } from './films.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Film } from './entites/film.entity';
 import { JwtModule } from '@nestjs/jwt';
+import { User } from '../users/entities/user.entity';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Film]), JwtModule],
+    imports: [TypeOrmModule.forFeature([Film, User]), JwtModule],
     exports: [TypeOrmModule],
     controllers: [FilmsController],
     providers: [FilmsService],
