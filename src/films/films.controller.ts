@@ -9,6 +9,7 @@ import {
   Delete,
   UnauthorizedException,
   UseGuards,
+  BadRequestException,
 } from '@nestjs/common';
 import { CreateFilmDTO } from './dto/create-film.dto';
 import { UpdateFilmDTO } from './dto/update-film.dto';
@@ -78,14 +79,25 @@ export class FilmsController {
   @UseGuards(AuthGuard)
   @Post('like/:id')
   async like(@Param('id') Id: number, @Req() req: Request) {
-    await this.filmsService.like(Id, req.id);
-    return `User ${req.username} liked film with id ${Id}`;
+    const likeState = await this.filmsService.like(Id, req.id);
+    return `User ${req.username} (${req.id}) ${likeState ? '' : 'un'}liked film with id ${Id}`;
   }
 
   @UseGuards(AuthGuard)
-  @Post('unlike/:id')
-  async unlike(@Param('id') Id: number, @Req() req: Request) {
-    await this.filmsService.unlike(Id, req.id);
-    return `User ${req.username} unliked film with id ${Id}`;
+  @Post('rate/:id/:rate')
+  async rate(@Param('id') Id: number, @Param('rate') rate: number, @Req() req: Request)
+  {
+    if(rate > 5 || rate < 0.5 || (rate % 0.5) != 0)
+    {
+      throw new BadRequestException('Invalid rating value');
+    }
+    return await this.filmsService.rate(Id, req.id, rate);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('unrate/:id')
+  async unrate(@Param('id') Id: number, @Req() req: Request)
+  {
+    return await this.filmsService.unrate(Id, req.id);
   }
 }

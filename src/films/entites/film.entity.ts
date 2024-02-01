@@ -1,5 +1,5 @@
-import { User } from "../../users/entities/user.entity";
-import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, JoinTable } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, Relation, OneToMany, JoinTable, JoinColumn } from "typeorm";
+import { FilmRating } from "./film-rating.entity";
 
 @Entity()
 export class Film
@@ -63,4 +63,7 @@ export class Film
 
     @Column()
     addedBy: number;
+
+    @OneToMany('FilmRating', 'film')
+    ratings: FilmRating[];
 }
