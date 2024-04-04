@@ -1,20 +1,21 @@
+import { Column, Entity, PrimaryGeneratedColumn, ManyToOne } from "typeorm";
+import { Film } from "../../films/entites/film.entity";
 import { User } from "../../users/entities/user.entity";
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToOne, JoinColumn } from "typeorm";
 
+@Entity()
 export class Review {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @ManyToOne('Film', 'reviews')
+    film: Film;
+
+    @ManyToOne(() => User, (user) => user.filmsReviews)
+    user: User;
+
     @Column()
-    title: string;
+    header: string;
 
     @Column()
     text: string;
-
-    @Column()
-    creationDate: Date;
-
-    @OneToOne(() => User)
-    @JoinColumn()
-    creator: User;
 }

@@ -24,23 +24,7 @@ export class FilmsService {
 
   async create(createFilmDTO: CreateFilmDTO, @Req() req: Request) {
     const film = new Film();
-    film.title = createFilmDTO.title;
-    film.description = createFilmDTO.description;
-    film.releaseDate = createFilmDTO.releaseDate;
-    film.country = createFilmDTO.country;
-    film.director = createFilmDTO.director;
-    film.assistDirector = createFilmDTO.assistDirector;
-    film.cast = createFilmDTO.cast;
-    film.producers = createFilmDTO.producers;
-    film.execProducers = createFilmDTO.execProducers;
-    film.writers = createFilmDTO.writers;
-    film.artDirection = createFilmDTO.artDirection;
-    film.composers = createFilmDTO.composers;
-    film.songs = createFilmDTO.songs;
-    film.sound = createFilmDTO.sound;
-    film.genres = createFilmDTO.genres;
-    film.poster = createFilmDTO.poster;
-    film.screenshots = createFilmDTO.screenshots;
+    Object.assign(film, { ...createFilmDTO });
     film.addDate = new Date(Date.now());
     film.addedBy = req.id ?? -1;
     return await this.filmsRepository.save(film);
@@ -56,18 +40,13 @@ export class FilmsService {
 
   async update(Id: number, updateFilmDTO: UpdateFilmDTO) {
     const film = new Film();
-    film.title = updateFilmDTO.title;
-    film.description = updateFilmDTO.description;
-    film.releaseDate = updateFilmDTO.releaseDate;
-    film.poster = updateFilmDTO.poster;
-    film.screenshots = updateFilmDTO.screenshots;
+    Object.assign(film, { ...updateFilmDTO });
     await this.filmsRepository.update({id: Id}, film);
     return await this.filmsRepository.findOneBy({id: Id});
   }
 
   async remove(Id: number) {
     await this.filmsRepository.delete({id: Id});
-    return 'Deleted';
   }
 
   //Returns true if liked and false if unliked

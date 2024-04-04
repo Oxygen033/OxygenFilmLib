@@ -9,7 +9,7 @@ import { FilmRating } from './entites/film-rating.entity';
 
 @Module({
     imports: [TypeOrmModule.forFeature([Film, User, FilmRating]), JwtModule],
-    exports: [TypeOrmModule],
+    exports: [TypeOrmModule, FilmsService],
     controllers: [FilmsController],
     providers: [FilmsService],
 })

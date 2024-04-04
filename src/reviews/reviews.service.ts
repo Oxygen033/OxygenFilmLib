@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Review } from './entities/review.entity';
 import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
-import { title } from 'process';
 
 @Injectable()
 export class ReviewsService {
@@ -14,25 +13,22 @@ export class ReviewsService {
   ) {}
 
   async create(createReviewDto: CreateReviewDto) {
-    const review = new Review();
-    review.title = createReviewDto.title;
-    review.text = createReviewDto.text;
-    return await this.reviewsRepository.save(review);
+    return await this.reviewsRepository.create(createReviewDto);
   }
 
-  async findAll(creatorId: number) {
+  async findAll() {
     return await this.reviewsRepository.find();
   }
 
   async findOne(id: number) {
-    return `This action returns a #${id} review`;
+    return await this.reviewsRepository.findOne({where: {id: id}});
   }
 
   async update(id: number, updateReviewDto: UpdateReviewDto) {
-    return `This action updates a #${id} review`;
+    return await this.reviewsRepository.update({id: id}, updateReviewDto);
   }
 
   async remove(id: number) {
-    return `This action removes a #${id} review`;
+    return await this.reviewsRepository.delete({id: id});
   }
 }

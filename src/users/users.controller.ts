@@ -27,14 +27,9 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  @UseGuards(AuthGuard)
   @Get(':username')
   findOne(@Param('username') username: string, @Req() req: Request) {
-    if ((req.username ?? '') === username) {
-      return this.usersService.findOne(username);
-    } else {
-      throw new UnauthorizedException();
-    }
+    return this.usersService.findOne(username);
   }
 
   @UseGuards(AuthGuard)

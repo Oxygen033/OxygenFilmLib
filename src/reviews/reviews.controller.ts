@@ -12,9 +12,9 @@ export class ReviewsController {
     return this.reviewsService.create(createReviewDto);
   }
 
-  @Get(':id')
-  findAll(@Param('id') id: string) {
-    return this.reviewsService.findAll(+id);
+  @Get()
+  findAll() {
+    return this.reviewsService.findAll();
   }
 
   @Get(':id')

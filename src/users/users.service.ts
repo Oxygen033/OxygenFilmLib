@@ -28,7 +28,7 @@ export class UsersService {
   }
 
   async findOne(Username: string) {
-    return await this.usersRepository.findOneBy({ username: Username });
+    return await this.usersRepository.findOne({where: {username: Username}, relations: ['likedFilms', 'filmsRatings']});
   }
 
   async update(Username: string, updateUserDto: UpdateUserDto) {

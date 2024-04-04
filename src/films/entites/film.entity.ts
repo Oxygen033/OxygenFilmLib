@@ -1,5 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, Relation, OneToMany, JoinTable, JoinColumn } from "typeorm";
 import { FilmRating } from "./film-rating.entity";
+import { Review } from "src/reviews/entities/review.entity";
 
 @Entity()
 export class Film
@@ -66,4 +67,7 @@ export class Film
 
     @OneToMany('FilmRating', 'film')
     ratings: FilmRating[];
+
+    @OneToMany('Review', 'film')
+    reviews: Review[];
 }
