@@ -2,6 +2,7 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  Res,
   UnauthorizedException,
 } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
@@ -17,16 +18,16 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async login(loginDto: CreateUserDto) {
+  async login(loginDto: CreateUserDto, @Res() res: Response) {
     const user = await this.usersService.findOne(loginDto.username);
     if (user?.username && user.password) {
       if (!(await bcrypt.compare(loginDto.password, user?.password))) {
         throw new UnauthorizedException();
       }
       const payload = { sub: user.id, username: user.username, roles: user.roles };
-      return await this.jwtService.signAsync(payload);
+      return res.set({ 'Authorization': await this.jwtService.signAsync(payload) }).send('Login successful');
     } else {
-      throw new HttpException('User not found', HttpStatus.FORBIDDEN); //Extremely ugly, will be fixed for sure
+      throw new HttpException('User not found', HttpStatus.FORBIDDEN);
     }
   }
 
