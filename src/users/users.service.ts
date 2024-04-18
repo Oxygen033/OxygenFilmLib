@@ -24,7 +24,7 @@ export class UsersService {
   }
 
   async findAll() {
-    return await this.usersRepository.find();
+    return await this.usersRepository.find({relations: ['likedFilms', 'filmsRatings']});
   }
 
   async findOne(Username: string) {

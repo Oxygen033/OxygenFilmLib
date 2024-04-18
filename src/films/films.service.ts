@@ -90,7 +90,24 @@ export class FilmsService {
         rating,
       });
     }
+    await this.updateOverallRating(filmId);
     return await this.filmRatingsRepository.save(filmRating);
+  }
+
+  async updateOverallRating(filmId: number) {
+    let filmRatings = await this.filmRatingsRepository.find({where: {film: {id: filmId}}});
+    let film = await this.filmsRepository.findOne({
+      where: {
+        id: filmId
+      }
+    });
+    if(film) {
+      film.overallRating = Number((filmRatings.reduce(
+       (accumulator, el) => accumulator + el.rating,
+       0
+      ) / filmRatings.length).toFixed(2));
+      return await this.filmsRepository.save(film);
+    }
   }
 
   async unrate(filmId: number, userId: number) {
@@ -98,6 +115,7 @@ export class FilmsService {
       where: { user: { id: userId }, film: { id: filmId } },
     });
     if(filmRating) {
+      await this.updateOverallRating(filmId);
       return await this.filmRatingsRepository.delete({
         film: {id: filmId},
         user: {id: userId}

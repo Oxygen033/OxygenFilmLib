@@ -6,7 +6,8 @@ export class CreateFilmDTO
     @IsString()
     title: string;
 
-    @IsOptional()
+    @IsNotEmpty()
+    @IsString()
     description?: string;
 
     @IsISO8601()

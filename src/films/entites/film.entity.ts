@@ -68,6 +68,9 @@ export class Film
     @OneToMany('FilmRating', 'film')
     ratings: FilmRating[];
 
+    @Column({type: 'float', nullable: true})
+    overallRating?: number;
+
     @OneToMany('Review', 'film')
     reviews: Review[];
 }
