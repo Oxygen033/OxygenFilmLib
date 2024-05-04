@@ -1,6 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, Relation, OneToMany, JoinTable, JoinColumn } from "typeorm";
 import { FilmRating } from "./film-rating.entity";
 import { Review } from "src/reviews/entities/review.entity";
+import { IsDate } from "class-validator";
 
 @Entity()
 export class Film
@@ -15,6 +16,7 @@ export class Film
     description?: string;
 
     @Column({nullable: true})
+    @IsDate()
     releaseDate?: Date;
 
     @Column({nullable: true})

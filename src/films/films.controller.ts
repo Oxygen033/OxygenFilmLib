@@ -43,6 +43,11 @@ export class FilmsController {
     return this.filmsService.findAll();
   }
 
+  @Get('count/:count')
+  findN(@Param('count') count:number) {
+    return this.filmsService.findN(count);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: number) {
     return this.filmsService.findOne(id);
@@ -81,6 +86,13 @@ export class FilmsController {
   async like(@Param('id') Id: number, @Req() req: Request) {
     const likeState = await this.filmsService.like(Id, req.id);
     return `User ${req.username} (${req.id}) ${likeState ? '' : 'un'}liked film with id ${Id}`;
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('watch/:id')
+  async watch(@Param('id') Id: number, @Req() req: Request) {
+    const watchState = await this.filmsService.watch(Id, req.id);
+    return `User ${req.username} (${req.id}) ${watchState ? '' : 'un'}watched film with id ${Id}`;
   }
 
   @UseGuards(AuthGuard)

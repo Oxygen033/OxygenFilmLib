@@ -24,11 +24,17 @@ export class UsersService {
   }
 
   async findAll() {
-    return await this.usersRepository.find({relations: ['likedFilms', 'filmsRatings']});
+    return await this.usersRepository.find({relations: ['likedFilms', 'filmsRatings', 'watchedFilms']});
   }
 
   async findOne(Username: string) {
-    return await this.usersRepository.findOne({where: {username: Username}, relations: ['likedFilms', 'filmsRatings']});
+    return await this.usersRepository.createQueryBuilder('user')
+    .where({ username: Username})
+    .select(['user','likedFilm.id', 'likedFilm.title', 'watchedFilm.id', 'watchedFilm.title', 'filmRatings'])
+    .leftJoin('user.likedFilms', 'likedFilm')
+    .leftJoin('user.watchedFilms', 'watchedFilm')
+    .leftJoin('user.filmsRatings', 'filmRatings')
+    .getOne();
   }
 
   async update(Username: string, updateUserDto: UpdateUserDto) {

@@ -17,6 +17,9 @@ export class User {
     @Exclude({ toPlainOnly: true })
     password?: string;
 
+    @Column({nullable: true})
+    description?: string;
+
     @Column({type: "enum", enum: Role, default: Role.User})
     @Exclude({ toPlainOnly: true })
     roles: Role[];
@@ -24,6 +27,10 @@ export class User {
     @ManyToMany(() => Film)
     @JoinTable({name: 'likes'})
     likedFilms: Film[];
+
+    @ManyToMany(() => Film)
+    @JoinTable({name: 'watched'})
+    watchedFilms: Film[];
 
     @OneToMany('FilmRating', 'user')
     filmsRatings: FilmRating[];

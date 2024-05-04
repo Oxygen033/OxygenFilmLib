@@ -9,7 +9,6 @@ import { DataSource } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { FilmRating } from './entites/film-rating.entity';
 
-//Placeholder
 @Injectable()
 export class FilmsService {
   constructor(
@@ -32,6 +31,10 @@ export class FilmsService {
 
   async findAll() {
     return await this.filmsRepository.find();
+  }
+
+  async findN(count: number) {
+    return await this.filmsRepository.find({take: count});
   }
 
   async findOne(Id: number) {
@@ -77,10 +80,38 @@ export class FilmsService {
     }
   }
 
-  async rate(filmId: number, userId: number, rating:number): Promise<FilmRating> {
+  async watch(filmId: number, userId: number): Promise<boolean> {
+    const watched = await this.usersRepository.exist({
+      where: {
+        id: userId,
+        watchedFilms: {
+          id: filmId,
+        },
+      },
+      relations: ['watchedFilms'],
+    });
+    if (watched) {
+      await this.dataSource
+        .createQueryBuilder()
+        .relation(User, 'watchedFilms')
+        .of(userId)
+        .remove(filmId);
+      return false;
+    } else {
+      await this.dataSource
+        .createQueryBuilder()
+        .relation(User, 'watchedFilms')
+        .of(userId)
+        .add(filmId);
+      return true;
+    }
+  }
+
+  async rate(filmId: number, userId: number, rating: number): Promise<FilmRating> {
     let filmRating = await this.filmRatingsRepository.findOne({
       where: { user: { id: userId }, film: { id: filmId } },
     });
+  
     if (filmRating) {
       filmRating.rating = rating;
     } else {
@@ -90,38 +121,44 @@ export class FilmsService {
         rating,
       });
     }
+  
+    await this.filmRatingsRepository.save(filmRating);
     await this.updateOverallRating(filmId);
-    return await this.filmRatingsRepository.save(filmRating);
-  }
-
-  async updateOverallRating(filmId: number) {
-    let filmRatings = await this.filmRatingsRepository.find({where: {film: {id: filmId}}});
-    let film = await this.filmsRepository.findOne({
-      where: {
-        id: filmId
-      }
-    });
-    if(film) {
-      film.overallRating = Number((filmRatings.reduce(
-       (accumulator, el) => accumulator + el.rating,
-       0
-      ) / filmRatings.length).toFixed(2));
-      return await this.filmsRepository.save(film);
-    }
+    return filmRating;
   }
 
   async unrate(filmId: number, userId: number) {
     let filmRating = await this.filmRatingsRepository.findOne({
       where: { user: { id: userId }, film: { id: filmId } },
     });
-    if(filmRating) {
+
+    if (filmRating) {
       await this.updateOverallRating(filmId);
       return await this.filmRatingsRepository.delete({
-        film: {id: filmId},
-        user: {id: userId}
+        film: { id: filmId },
+        user: { id: userId }
       });
     } else {
       throw new UnauthorizedException();
+    }
+  }
+
+  async updateOverallRating(filmId: number) {
+    const film = await this.filmsRepository.findOne({
+      where: { id: filmId },
+      relations: ['ratings'],
+    });
+
+    if (film) {
+      const ratings = film.ratings.map(rating => rating.rating);
+      const overallRating = ratings.length > 0 ? ratings.reduce((a, b) => a + b) / ratings.length : 0;
+
+      await this.dataSource
+        .createQueryBuilder()
+        .update(Film)
+        .set({ overallRating })
+        .where("id = :filmId", { filmId })
+        .execute();
     }
   }
 }
