@@ -21,27 +21,31 @@ export class FilmsService {
     private dataSource: DataSource
   ) {}
 
-  async create(createFilmDTO: CreateFilmDTO, @Req() req: Request) {
+  async create(createFilmDTO: CreateFilmDTO, req: Request) {
     const film = new Film();
     film.title = createFilmDTO.title;
     film.description = createFilmDTO.description;
     film.releaseDate = createFilmDTO.releaseDate;
     film.country = createFilmDTO.country;
     film.director = createFilmDTO.director;
-    film.assistDirector = createFilmDTO.assistDirector ? createFilmDTO.assistDirector.split(',') : undefined;
-    film.cast = createFilmDTO.cast ? createFilmDTO.cast.split(',') : undefined;
-    film.producers = createFilmDTO.producers ? createFilmDTO.producers.split(',') : undefined;
-    film.execProducers = createFilmDTO.execProducers ? createFilmDTO.execProducers.split(',') : undefined;
-    film.writers = createFilmDTO.writers ? createFilmDTO.writers.split(',') : undefined;
-    film.artDirection = createFilmDTO.artDirection ? createFilmDTO.artDirection.split(',') : undefined;
-    film.composers = createFilmDTO.composers ? createFilmDTO.composers.split(',') : undefined;
-    film.songs = createFilmDTO.songs ? createFilmDTO.songs.split(',') : undefined;
-    film.sound = createFilmDTO.sound ? createFilmDTO.sound.split(',') : undefined;
-    film.genres = createFilmDTO.genres ? createFilmDTO.genres.split(',') : undefined;
+  
+    // Parse arrays from JSON strings
+    film.assistDirector = createFilmDTO.assistDirector ? JSON.parse(createFilmDTO.assistDirector) : undefined;
+    film.cast = createFilmDTO.cast ? JSON.parse(createFilmDTO.cast) : undefined;
+    film.producers = createFilmDTO.producers ? JSON.parse(createFilmDTO.producers) : undefined;
+    film.execProducers = createFilmDTO.execProducers ? JSON.parse(createFilmDTO.execProducers) : undefined;
+    film.writers = createFilmDTO.writers ? JSON.parse(createFilmDTO.writers) : undefined;
+    film.artDirection = createFilmDTO.artDirection ? JSON.parse(createFilmDTO.artDirection) : undefined;
+    film.composers = createFilmDTO.composers ? JSON.parse(createFilmDTO.composers) : undefined;
+    film.songs = createFilmDTO.songs ? JSON.parse(createFilmDTO.songs) : undefined;
+    film.sound = createFilmDTO.sound ? JSON.parse(createFilmDTO.sound) : undefined;
+    film.genres = createFilmDTO.genres ? JSON.parse(createFilmDTO.genres) : undefined;
     film.poster = createFilmDTO.poster ? createFilmDTO.poster : undefined;
-    film.screenshots = createFilmDTO.screenshots ? createFilmDTO.screenshots.split(',') : undefined;
+    film.screenshots = createFilmDTO.screenshots ? JSON.parse(createFilmDTO.screenshots) : undefined;
+  
     film.addDate = new Date(Date.now());
     film.addedBy = req.id ?? -1;
+  
     return await this.filmsRepository.save(film);
   }
   
