@@ -10,6 +10,9 @@ import {
   UnauthorizedException,
   UseGuards,
   BadRequestException,
+  UseInterceptors,
+  UploadedFile,
+  ValidationPipe,
 } from '@nestjs/common';
 import { CreateFilmDTO } from './dto/create-film.dto';
 import { UpdateFilmDTO } from './dto/update-film.dto';
@@ -22,6 +25,9 @@ import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/roles/roles.guard';
 import { Roles } from '../auth/roles/roles.decorator';
 import { Role } from '../auth/roles/role.enum';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 
 @Controller('/films')
 export class FilmsController {
@@ -34,7 +40,27 @@ export class FilmsController {
   @Roles(Role.Admin)
   @UseGuards(AuthGuard, RolesGuard)
   @Post()
-  create(@Body() createFilmDto: CreateFilmDTO, @Req() req: Request) {
+  @UseInterceptors(
+    FileInterceptor('poster', {
+      storage: diskStorage({
+        destination: './media',
+        filename: (req, file, cb) => {
+          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const ext = extname(file.originalname);
+          const filename = `${file.fieldname}-${uniqueSuffix}${ext}`;
+          cb(null, filename);
+        },
+      }),
+    }),
+  )
+  create(
+    @UploadedFile() poster: Express.Multer.File,
+    @Body() createFilmDto: CreateFilmDTO,
+    @Req() req: Request,
+  ) {
+    if (poster) {
+      createFilmDto.poster = poster.filename;
+    }
     return this.filmsService.create(createFilmDto, req);
   }
 

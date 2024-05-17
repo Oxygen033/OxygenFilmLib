@@ -1,72 +1,71 @@
-import { IsDate, IsISO31661Alpha2, IsISO8601, IsNotEmpty, IsOptional, IsString, isDateString, isNotEmpty } from "class-validator";
+import { IsNotEmpty, IsOptional, IsString, IsISO8601 } from 'class-validator';
 
-export class CreateFilmDTO
-{
-    @IsNotEmpty()
-    @IsString()
-    title: string;
+export class CreateFilmDTO {
+  @IsNotEmpty()
+  @IsString()
+  title: string;
 
-    @IsNotEmpty()
-    @IsString()
-    description?: string;
+  @IsNotEmpty()
+  @IsString()
+  description: string;
 
-    @IsISO8601()
-    @IsOptional()
-    releaseDate: Date;
+  @IsISO8601()
+  @IsOptional()
+  releaseDate: Date;
 
-    @IsISO31661Alpha2()
-    @IsOptional()
-    country: string;
+  @IsOptional()
+  @IsString()
+  country: string;
 
-    @IsNotEmpty()
-    @IsString()
-    director: string;
+  @IsNotEmpty()
+  @IsString()
+  director: string;
 
-    @IsOptional()
-    @IsString()
-    assistDirector: string[];
+  @IsOptional()
+  @IsString()
+  assistDirector: string;
 
-    @IsOptional()
-    @IsString()
-    cast: string[];
+  @IsOptional()
+  @IsString()
+  cast: string;
 
-    @IsOptional()
-    @IsString()
-    producers: string[];
+  @IsOptional()
+  @IsString()
+  producers: string;
 
-    @IsOptional()
-    @IsString()
-    execProducers: string[];
+  @IsOptional()
+  @IsString()
+  execProducers: string;
 
-    @IsOptional()
-    @IsString()
-    writers: string[];
+  @IsOptional()
+  @IsString()
+  writers: string;
 
-    @IsOptional()
-    @IsString()
-    artDirection: string[];
+  @IsOptional()
+  @IsString()
+  artDirection: string;
 
-    @IsOptional()
-    @IsString()
-    composers: string[];
+  @IsOptional()
+  @IsString()
+  composers: string;
 
-    @IsOptional()
-    @IsString()
-    songs: string[];
+  @IsOptional()
+  @IsString()
+  songs: string;
 
-    @IsOptional()
-    @IsString()
-    sound: string[];
+  @IsOptional()
+  @IsString()
+  sound: string;
 
-    @IsOptional()
-    @IsString()
-    genres: string[];
+  @IsOptional()
+  @IsString()
+  genres: string;
 
-    @IsOptional()
-    @IsString()
-    poster: string;
+  @IsOptional()
+  @IsString()
+  poster: string;
 
-    @IsOptional()
-    @IsString()
-    screenshots: string[];
+  @IsOptional()
+  @IsString()
+  screenshots: string;
 }

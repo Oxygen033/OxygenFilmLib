@@ -23,11 +23,28 @@ export class FilmsService {
 
   async create(createFilmDTO: CreateFilmDTO, @Req() req: Request) {
     const film = new Film();
-    Object.assign(film, { ...createFilmDTO });
+    film.title = createFilmDTO.title;
+    film.description = createFilmDTO.description;
+    film.releaseDate = createFilmDTO.releaseDate;
+    film.country = createFilmDTO.country;
+    film.director = createFilmDTO.director;
+    film.assistDirector = createFilmDTO.assistDirector ? createFilmDTO.assistDirector.split(',') : undefined;
+    film.cast = createFilmDTO.cast ? createFilmDTO.cast.split(',') : undefined;
+    film.producers = createFilmDTO.producers ? createFilmDTO.producers.split(',') : undefined;
+    film.execProducers = createFilmDTO.execProducers ? createFilmDTO.execProducers.split(',') : undefined;
+    film.writers = createFilmDTO.writers ? createFilmDTO.writers.split(',') : undefined;
+    film.artDirection = createFilmDTO.artDirection ? createFilmDTO.artDirection.split(',') : undefined;
+    film.composers = createFilmDTO.composers ? createFilmDTO.composers.split(',') : undefined;
+    film.songs = createFilmDTO.songs ? createFilmDTO.songs.split(',') : undefined;
+    film.sound = createFilmDTO.sound ? createFilmDTO.sound.split(',') : undefined;
+    film.genres = createFilmDTO.genres ? createFilmDTO.genres.split(',') : undefined;
+    film.poster = createFilmDTO.poster ? createFilmDTO.poster : undefined;
+    film.screenshots = createFilmDTO.screenshots ? createFilmDTO.screenshots.split(',') : undefined;
     film.addDate = new Date(Date.now());
     film.addedBy = req.id ?? -1;
     return await this.filmsRepository.save(film);
   }
+  
 
   async findAll() {
     return await this.filmsRepository.find();

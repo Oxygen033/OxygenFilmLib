@@ -25,40 +25,40 @@ export class Film
     @Column()
     director: string;
 
-    @Column("varchar", {array: true, nullable: true})
+    @Column("simple-array", {nullable: true})
     assistDirector?: string[];
 
-    @Column("varchar", {array: true, nullable: true})
+    @Column("simple-array", {nullable: true})
     cast?: string[];
 
-    @Column("varchar", {array: true, nullable: true})
+    @Column("simple-array", {nullable: true})
     producers?: string[];
 
-    @Column("varchar", {array: true, nullable: true})
+    @Column("simple-array", {nullable: true})
     execProducers?: string[];
 
-    @Column("varchar", {array: true, nullable: true})
+    @Column("simple-array", {nullable: true})
     writers?: string[];
 
-    @Column("varchar", {array: true, nullable: true})
+    @Column("simple-array", {nullable: true})
     artDirection?: string[];
 
-    @Column("varchar", {array: true, nullable: true})
+    @Column("simple-array", {nullable: true})
     composers?: string[];
 
-    @Column("varchar", {array: true, nullable: true})
+    @Column("simple-array", {nullable: true})
     songs?: string[];
 
-    @Column("varchar", {array: true, nullable: true})
+    @Column("simple-array", {nullable: true})
     sound?: string[];
 
-    @Column("varchar", {array: true, nullable: true})
+    @Column("simple-array", {nullable: true})
     genres?: string[];
 
     @Column({nullable: true})
     poster?: string;
 
-    @Column("varchar", {array: true, nullable: true})
+    @Column("simple-array", {nullable: true})
     screenshots?: string[];
 
     @Column()
