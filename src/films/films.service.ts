@@ -29,7 +29,6 @@ export class FilmsService {
     film.country = createFilmDTO.country;
     film.director = createFilmDTO.director;
   
-    // Parse arrays from JSON strings
     film.assistDirector = createFilmDTO.assistDirector ? JSON.parse(createFilmDTO.assistDirector) : undefined;
     film.cast = createFilmDTO.cast ? JSON.parse(createFilmDTO.cast) : undefined;
     film.producers = createFilmDTO.producers ? JSON.parse(createFilmDTO.producers) : undefined;
@@ -40,7 +39,8 @@ export class FilmsService {
     film.songs = createFilmDTO.songs ? JSON.parse(createFilmDTO.songs) : undefined;
     film.sound = createFilmDTO.sound ? JSON.parse(createFilmDTO.sound) : undefined;
     film.genres = createFilmDTO.genres ? JSON.parse(createFilmDTO.genres) : undefined;
-    film.poster = createFilmDTO.poster ? createFilmDTO.poster : undefined;
+  
+    film.poster = createFilmDTO.poster === "null" ? undefined : createFilmDTO.poster;
     film.screenshots = createFilmDTO.screenshots ? JSON.parse(createFilmDTO.screenshots) : undefined;
   
     film.addDate = new Date(Date.now());
@@ -48,6 +48,7 @@ export class FilmsService {
   
     return await this.filmsRepository.save(film);
   }
+  
   
 
   async findAll() {
