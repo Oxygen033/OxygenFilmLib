@@ -28,6 +28,7 @@ import { Role } from '../auth/roles/role.enum';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { NotFoundException } from '@nestjs/common';
 
 @Controller('/films')
 export class FilmsController {
@@ -45,7 +46,8 @@ export class FilmsController {
       storage: diskStorage({
         destination: './media',
         filename: (req, file, cb) => {
-          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
           const ext = extname(file.originalname);
           const filename = `${file.fieldname}-${uniqueSuffix}${ext}`;
           cb(null, filename);
@@ -70,7 +72,7 @@ export class FilmsController {
   }
 
   @Get('count/:count')
-  findN(@Param('count') count:number) {
+  findN(@Param('count') count: number) {
     return this.filmsService.findN(count);
   }
 
@@ -111,31 +113,69 @@ export class FilmsController {
   @Post('like/:id')
   async like(@Param('id') Id: number, @Req() req: Request) {
     const likeState = await this.filmsService.like(Id, req.id);
-    return `User ${req.username} (${req.id}) ${likeState ? '' : 'un'}liked film with id ${Id}`;
+    const film = await this.filmsService.findOne(Id);
+    return {
+      message: `User ${req.username} (${req.id}) ${
+        likeState ? '' : 'un'
+      }liked film with id ${Id}`,
+      film,
+    };
   }
 
   @UseGuards(AuthGuard)
   @Post('watch/:id')
   async watch(@Param('id') Id: number, @Req() req: Request) {
     const watchState = await this.filmsService.watch(Id, req.id);
-    return `User ${req.username} (${req.id}) ${watchState ? '' : 'un'}watched film with id ${Id}`;
+    const film = await this.filmsService.findOne(Id);
+    return {
+      message: `User ${req.username} (${req.id}) ${
+        watchState ? '' : 'un'
+      }watched film with id ${Id}`,
+      film,
+    };
   }
 
   @UseGuards(AuthGuard)
   @Post('rate/:id/:rate')
-  async rate(@Param('id') Id: number, @Param('rate') rate: number, @Req() req: Request)
-  {
-    if(rate > 5 || rate < 0.5 || (rate % 0.5) != 0)
-    {
+  async rate(
+    @Param('id') Id: number,
+    @Param('rate') rate: number,
+    @Req() req: Request,
+  ) {
+    if (rate > 5 || rate < 0.5 || rate % 0.5 != 0) {
       throw new BadRequestException('Invalid rating value');
     }
     return await this.filmsService.rate(Id, req.id, rate);
   }
 
+  @Get(':id/rating/:username')
+  async getRatingByUsername(
+    @Param('id') filmId: number,
+    @Param('username') username: string,
+  ) {
+    const rating = await this.filmsService.getRatingByUsername(
+      filmId,
+      username,
+    );
+    if (!rating) {
+      throw new NotFoundException(
+        `Rating not found for user ${username} on film ${filmId}`,
+      );
+    }
+    return { rating: rating.rating };
+  }
+
+  @Get(':id/ratings/:count')
+  async getLastFiveRatings(
+    @Param('id') id: number,
+    @Param('count') count: number,
+  ) {
+    return this.filmsService.getLastRatings(id, count);
+  }
+
   @UseGuards(AuthGuard)
   @Post('unrate/:id')
-  async unrate(@Param('id') Id: number, @Req() req: Request)
-  {
+  async unrate(@Param('id') Id: number, @Req() req: Request) {
     return await this.filmsService.unrate(Id, req.id);
   }
 }

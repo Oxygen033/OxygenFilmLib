@@ -1,4 +1,11 @@
-import { HttpException, HttpStatus, Injectable, Req, UnauthorizedException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  Req,
+  UnauthorizedException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UpdateFilmDTO } from './dto/update-film.dto';
@@ -18,7 +25,7 @@ export class FilmsService {
     private usersRepository: Repository<User>,
     @InjectRepository(FilmRating)
     private filmRatingsRepository: Repository<FilmRating>,
-    private dataSource: DataSource
+    private dataSource: DataSource,
   ) {}
 
   async create(createFilmDTO: CreateFilmDTO, req: Request) {
@@ -28,50 +35,69 @@ export class FilmsService {
     film.releaseDate = createFilmDTO.releaseDate;
     film.country = createFilmDTO.country;
     film.director = createFilmDTO.director;
-  
-    film.assistDirector = createFilmDTO.assistDirector ? JSON.parse(createFilmDTO.assistDirector) : undefined;
+
+    film.assistDirector = createFilmDTO.assistDirector
+      ? JSON.parse(createFilmDTO.assistDirector)
+      : undefined;
     film.cast = createFilmDTO.cast ? JSON.parse(createFilmDTO.cast) : undefined;
-    film.producers = createFilmDTO.producers ? JSON.parse(createFilmDTO.producers) : undefined;
-    film.execProducers = createFilmDTO.execProducers ? JSON.parse(createFilmDTO.execProducers) : undefined;
-    film.writers = createFilmDTO.writers ? JSON.parse(createFilmDTO.writers) : undefined;
-    film.artDirection = createFilmDTO.artDirection ? JSON.parse(createFilmDTO.artDirection) : undefined;
-    film.composers = createFilmDTO.composers ? JSON.parse(createFilmDTO.composers) : undefined;
-    film.songs = createFilmDTO.songs ? JSON.parse(createFilmDTO.songs) : undefined;
-    film.sound = createFilmDTO.sound ? JSON.parse(createFilmDTO.sound) : undefined;
-    film.genres = createFilmDTO.genres ? JSON.parse(createFilmDTO.genres) : undefined;
-  
-    film.poster = createFilmDTO.poster === "null" ? undefined : createFilmDTO.poster;
-    film.screenshots = createFilmDTO.screenshots ? JSON.parse(createFilmDTO.screenshots) : undefined;
-  
+    film.producers = createFilmDTO.producers
+      ? JSON.parse(createFilmDTO.producers)
+      : undefined;
+    film.execProducers = createFilmDTO.execProducers
+      ? JSON.parse(createFilmDTO.execProducers)
+      : undefined;
+    film.writers = createFilmDTO.writers
+      ? JSON.parse(createFilmDTO.writers)
+      : undefined;
+    film.artDirection = createFilmDTO.artDirection
+      ? JSON.parse(createFilmDTO.artDirection)
+      : undefined;
+    film.composers = createFilmDTO.composers
+      ? JSON.parse(createFilmDTO.composers)
+      : undefined;
+    film.songs = createFilmDTO.songs
+      ? JSON.parse(createFilmDTO.songs)
+      : undefined;
+    film.sound = createFilmDTO.sound
+      ? JSON.parse(createFilmDTO.sound)
+      : undefined;
+    film.genres = createFilmDTO.genres
+      ? JSON.parse(createFilmDTO.genres)
+      : undefined;
+
+    film.poster =
+      createFilmDTO.poster === 'null' ? undefined : createFilmDTO.poster;
+    film.screenshots = createFilmDTO.screenshots
+      ? JSON.parse(createFilmDTO.screenshots)
+      : undefined;
+
     film.addDate = new Date(Date.now());
     film.addedBy = req.id ?? -1;
-  
+
     return await this.filmsRepository.save(film);
   }
-  
-  
 
   async findAll() {
     return await this.filmsRepository.find();
   }
 
   async findN(count: number) {
-    return await this.filmsRepository.find({take: count});
+    return await this.filmsRepository.find({ take: count });
   }
 
   async findOne(Id: number) {
-    return await this.filmsRepository.findOneBy({id: Id});
+    return await this.filmsRepository.findOneBy({ id: Id });
   }
 
   async update(Id: number, updateFilmDTO: UpdateFilmDTO) {
     const film = new Film();
     Object.assign(film, { ...updateFilmDTO });
-    await this.filmsRepository.update({id: Id}, film);
-    return await this.filmsRepository.findOneBy({id: Id});
+    await this.filmsRepository.update({ id: Id }, film);
+    return await this.filmsRepository.findOneBy({ id: Id });
   }
 
   async remove(Id: number) {
-    await this.filmsRepository.delete({id: Id});
+    await this.filmsRepository.delete({ id: Id });
   }
 
   //Returns true if liked and false if unliked
@@ -85,21 +111,27 @@ export class FilmsService {
       },
       relations: ['likedFilms'],
     });
+    const film = await this.filmsRepository.findOneBy({ id: filmId });
+    if (!film) {
+      throw new NotFoundException(`Film with id ${filmId} not found`);
+    }
     if (liked) {
       await this.dataSource
         .createQueryBuilder()
         .relation(User, 'likedFilms')
         .of(userId)
         .remove(filmId);
-      return false;
+      film.likesCount -= 1;
     } else {
       await this.dataSource
         .createQueryBuilder()
         .relation(User, 'likedFilms')
         .of(userId)
         .add(filmId);
-      return true;
+      film.likesCount += 1;
     }
+    await this.filmsRepository.save(film);
+    return !liked;
   }
 
   async watch(filmId: number, userId: number): Promise<boolean> {
@@ -112,28 +144,38 @@ export class FilmsService {
       },
       relations: ['watchedFilms'],
     });
+    const film = await this.filmsRepository.findOneBy({ id: filmId });
+    if (!film) {
+      throw new NotFoundException(`Film with id ${filmId} not found`);
+    }
     if (watched) {
       await this.dataSource
         .createQueryBuilder()
         .relation(User, 'watchedFilms')
         .of(userId)
         .remove(filmId);
-      return false;
+      film.watchesCount -= 1;
     } else {
       await this.dataSource
         .createQueryBuilder()
         .relation(User, 'watchedFilms')
         .of(userId)
         .add(filmId);
-      return true;
+      film.watchesCount += 1;
     }
+    await this.filmsRepository.save(film);
+    return !watched;
   }
 
-  async rate(filmId: number, userId: number, rating: number): Promise<FilmRating> {
+  async rate(
+    filmId: number,
+    userId: number,
+    rating: number,
+  ): Promise<FilmRating> {
     let filmRating = await this.filmRatingsRepository.findOne({
       where: { user: { id: userId }, film: { id: filmId } },
     });
-  
+
     if (filmRating) {
       filmRating.rating = rating;
     } else {
@@ -143,14 +185,52 @@ export class FilmsService {
         rating,
       });
     }
-  
+
     await this.filmRatingsRepository.save(filmRating);
     await this.updateOverallRating(filmId);
     return filmRating;
   }
 
+  async getLastRatings(filmId: number, count: number) {
+    const ratings = await this.filmRatingsRepository
+      .createQueryBuilder('rating')
+      .leftJoinAndSelect('rating.user', 'user')
+      .where('rating.filmId = :filmId', { filmId })
+      .limit(count)
+      .select(['rating.rating', 'user.username'])
+      .getMany();
+
+    return ratings.map((r) => ({
+      username: r.user.username,
+      rating: r.rating,
+    }));
+  }
+
+  async getRatingByUsername(
+    filmId: number,
+    username: string,
+  ): Promise<FilmRating | null> {
+    const user = await this.usersRepository.findOne({ where: { username } });
+    if (!user) {
+      throw new NotFoundException(`User ${username} not found`);
+    }
+
+    const rating = await this.filmRatingsRepository.findOne({
+      where: {
+        user: { id: user.id },
+        film: { id: filmId },
+      },
+    });
+
+    if (!rating) {
+      return null;
+    }
+
+    return rating;
+  }
+
   async unrate(filmId: number, userId: number) {
-    let filmRating = await this.filmRatingsRepository.findOne({
+    const filmRating = await this.filmRatingsRepository.findOne({
       where: { user: { id: userId }, film: { id: filmId } },
     });
 
@@ -158,7 +238,7 @@ export class FilmsService {
       await this.updateOverallRating(filmId);
       return await this.filmRatingsRepository.delete({
         film: { id: filmId },
-        user: { id: userId }
+        user: { id: userId },
       });
     } else {
       throw new UnauthorizedException();
@@ -172,14 +252,17 @@ export class FilmsService {
     });
 
     if (film) {
-      const ratings = film.ratings.map(rating => rating.rating);
-      const overallRating = ratings.length > 0 ? ratings.reduce((a, b) => a + b) / ratings.length : 0;
+      const ratings = film.ratings.map((rating) => rating.rating);
+      const overallRating =
+        ratings.length > 0
+          ? ratings.reduce((a, b) => a + b) / ratings.length
+          : 0;
 
       await this.dataSource
         .createQueryBuilder()
         .update(Film)
         .set({ overallRating })
-        .where("id = :filmId", { filmId })
+        .where('id = :filmId', { filmId })
         .execute();
     }
   }

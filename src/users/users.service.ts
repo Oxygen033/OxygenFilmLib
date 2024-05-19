@@ -24,28 +24,51 @@ export class UsersService {
   }
 
   async findAll() {
-    return await this.usersRepository.find({relations: ['likedFilms', 'filmsRatings', 'watchedFilms']});
+    return await this.usersRepository.find({
+      relations: ['likedFilms', 'filmsRatings', 'watchedFilms'],
+    });
   }
 
   async findOne(Username: string) {
-    return await this.usersRepository.createQueryBuilder('user')
-    .where({ username: Username})
-    .select(['user','likedFilm.id', 'likedFilm.title', 'watchedFilm.id', 'watchedFilm.title', 'filmRatings'])
-    .leftJoin('user.likedFilms', 'likedFilm')
-    .leftJoin('user.watchedFilms', 'watchedFilm')
-    .leftJoin('user.filmsRatings', 'filmRatings')
-    .getOne();
+    return await this.usersRepository
+      .createQueryBuilder('user')
+      .where({ username: Username })
+      .select([
+        'user',
+        'likedFilm.id',
+        'likedFilm.title',
+        'watchedFilm.id',
+        'watchedFilm.title',
+        'filmRatings',
+      ])
+      .leftJoin('user.likedFilms', 'likedFilm')
+      .leftJoin('user.watchedFilms', 'watchedFilm')
+      .leftJoin('user.filmsRatings', 'filmRatings')
+      .getOne();
   }
 
   async update(Username: string, updateUserDto: UpdateUserDto) {
-    const user = new User();
-    user.username = updateUserDto.username;
+    const updateData: Partial<User> = {};
+
+    if (updateUserDto.username) {
+      updateData.username = updateUserDto.username;
+    }
     if (updateUserDto.password) {
       const hash = await bcrypt.hash(updateUserDto.password, 10);
-      user.password = hash;
+      updateData.password = hash;
     }
-    await this.usersRepository.update({ username: Username }, user);
-    return await this.usersRepository.findOneBy({ username: updateUserDto.username });
+    if (updateUserDto.description !== undefined) {
+      updateData.description = updateUserDto.description;
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      throw new Error('No valid update fields provided');
+    }
+
+    await this.usersRepository.update({ username: Username }, updateData);
+    return await this.usersRepository.findOneBy({
+      username: updateUserDto.username || Username,
+    });
   }
 
   async remove(Username: string) {

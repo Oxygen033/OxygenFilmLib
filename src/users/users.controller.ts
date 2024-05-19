@@ -20,7 +20,10 @@ import { validate } from 'class-validator';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService, private reflector: Reflector) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private reflector: Reflector,
+  ) {}
 
   @Get()
   findAll() {
@@ -40,12 +43,9 @@ export class UsersController {
     @Req() req: Request,
   ) {
     if ((req.username ?? '') === username || req.roles.includes(Role.Admin)) {
-      if(!req.roles.includes(Role.Admin))
-      {
+      if (!req.roles.includes(Role.Admin)) {
         updateUserDto.roles = undefined; //Forgive me
-      }
-      else
-      {
+      } else {
         updateUserDto.username = undefined;
         updateUserDto.password = undefined;
       }
@@ -58,7 +58,7 @@ export class UsersController {
   @UseGuards(AuthGuard)
   @Delete(':username')
   remove(@Param('username') username: string, @Req() req: Request) {
-    if (((req.username ?? '') === username) || req.roles.includes(Role.Admin)) {
+    if ((req.username ?? '') === username || req.roles.includes(Role.Admin)) {
       return this.usersService.remove(username);
     } else {
       throw new UnauthorizedException();
