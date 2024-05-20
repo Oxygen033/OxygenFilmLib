@@ -25,7 +25,7 @@ export class UsersService {
 
   async findAll() {
     return await this.usersRepository.find({
-      relations: ['likedFilms', 'filmsRatings', 'watchedFilms'],
+      relations: ['likedFilms', 'filmsRatings', 'watchedFilms', 'filmsRatings.film'],
     });
   }
 
@@ -39,13 +39,18 @@ export class UsersService {
         'likedFilm.title',
         'watchedFilm.id',
         'watchedFilm.title',
-        'filmRatings',
+        'filmRatings.id',
+        'filmRatings.rating',
+        'ratedFilm.id',
+        'ratedFilm.title'
       ])
       .leftJoin('user.likedFilms', 'likedFilm')
       .leftJoin('user.watchedFilms', 'watchedFilm')
       .leftJoin('user.filmsRatings', 'filmRatings')
+      .leftJoin('filmRatings.film', 'ratedFilm')
       .getOne();
   }
+  
 
   async update(Username: string, updateUserDto: UpdateUserDto) {
     const updateData: Partial<User> = {};

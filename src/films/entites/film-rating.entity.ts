@@ -11,9 +11,9 @@ export class FilmRating {
   @Column({ type: 'float' })
   rating: number;
 
-  @ManyToOne(() => User, (user) => user.filmsRatings)
+  @ManyToOne(() => User, (user) => user.filmsRatings, { onDelete: 'CASCADE' })
   user: User;
 
-  @ManyToOne('Film', 'ratings')
+  @ManyToOne('Film', 'ratings', { onDelete: 'CASCADE' })
   film: Film;
 }
